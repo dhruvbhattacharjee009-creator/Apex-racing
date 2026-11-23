@@ -1,0 +1,724 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090b10">
+<title>APEX — Beyond The Racing Line</title>
+<meta name="description" content="APEX is an independent Formula racing analysis and engineering intelligence platform.">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+  --bg:#090b10;--panel:#11151d;--panel2:#171d27;--line:#252d3a;
+  --text:#f3f5f8;--muted:#929baa;--red:#ed2638;--red2:#ff5361;
+  --green:#55d6a0;--yellow:#f2c45c;--blue:#64aaff;
+  --radius:15px;--shadow:0 12px 35px #0005;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif;line-height:1.55}
+button,input,select{font:inherit}
+button{cursor:pointer}
+a{color:var(--red2);text-decoration:none}
+a:hover{text-decoration:underline}
+.topbar{position:sticky;top:0;z-index:20;background:#090b10ed;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.topinner{max-width:1400px;margin:auto;padding:13px 22px;display:flex;align-items:center;justify-content:space-between;gap:15px}
+.brand{display:flex;align-items:center;gap:11px;font-weight:900;letter-spacing:3px;font-size:21px}
+.brandmark{width:34px;height:34px;background:var(--red);clip-path:polygon(0 100%,42% 0,100% 0,58% 100%);position:relative}
+.brand small{display:block;color:var(--muted);font-size:9px;letter-spacing:2px;font-weight:600}
+.nav{display:flex;gap:5px;overflow-x:auto;max-width:75%;scrollbar-width:none}
+.nav button{white-space:nowrap;border:0;background:transparent;color:var(--muted);padding:9px 12px;border-radius:8px;font-size:12px}
+.nav button:hover,.nav button.active{background:#222936;color:white}
+.nav button.active{box-shadow:inset 0 -2px var(--red)}
+main{max-width:1400px;margin:auto;padding:28px 22px 70px}
+.page{display:none;animation:fade .25s ease}
+.page.active{display:block}
+@keyframes fade{from{opacity:.4;transform:translateY(5px)}to{opacity:1;transform:none}}
+.hero{padding:38px 0 30px;display:grid;grid-template-columns:1.2fr .8fr;gap:25px;align-items:center}
+.eyebrow{color:var(--red2);font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase}
+h1{font-size:clamp(38px,6vw,76px);line-height:.98;letter-spacing:-3px;margin:12px 0 18px}
+h1 span{color:var(--red)}
+h2{font-size:25px;margin:0 0 8px;letter-spacing:-.5px}
+h3{font-size:16px;margin:0 0 9px}
+p{color:var(--muted);margin:7px 0}
+.sub{font-size:15px;max-width:650px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:19px;box-shadow:var(--shadow);min-width:0}
+.panel + .panel{margin-top:14px}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:15px;margin:17px 0}
+.col-3{grid-column:span 3}.col-4{grid-column:span 4}.col-5{grid-column:span 5}
+.col-6{grid-column:span 6}.col-7{grid-column:span 7}.col-8{grid-column:span 8}.col-12{grid-column:span 12}
+.stat{font-size:28px;font-weight:850;letter-spacing:-1px;margin-top:8px}
+.statlabel{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1.4px}
+.sectionhead{display:flex;align-items:end;justify-content:space-between;gap:15px;margin:32px 0 13px}
+.sectionhead p{font-size:12px}
+.btn{background:var(--red);border:1px solid var(--red);color:white;padding:10px 15px;border-radius:8px;font-weight:750;font-size:12px}
+.btn:hover{background:#c91d2d}
+.btn.secondary{background:var(--panel2);border-color:var(--line);color:var(--text)}
+.btn.secondary:hover{border-color:var(--red)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.controlrow{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:12px 0}
+select,input[type="number"],input[type="range"]{background:#0b0e14;color:var(--text);border:1px solid var(--line);padding:10px;border-radius:8px;max-width:100%}
+select{min-width:140px}
+label{font-size:11px;color:var(--muted);display:block;margin-bottom:5px}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:12px;min-width:520px}
+th,td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px;background:#151a23}
+tr:last-child td{border-bottom:0}
+tr:hover td{background:#ffffff06}
+.tag{display:inline-block;padding:4px 8px;border-radius:5px;background:#242b38;color:#c6cfdd;font-size:10px;font-weight:700}
+.tag.red{background:#4a1b25;color:#ff929b}.tag.green{background:#153b30;color:#77e2b6}
+.muted{color:var(--muted)}
+.notice{padding:12px 14px;background:#171d27;border-left:3px solid var(--red);border-radius:7px;color:#c4cbd6;font-size:12px;margin:12px 0}
+.status{font-size:12px;color:var(--muted);min-height:20px;margin:9px 0}
+.status.error{color:#ff858e}.status.good{color:var(--green)}
+.trackbox{background:radial-gradient(ellipse at center,#202735,#0b0e14 70%);border:1px solid var(--line);border-radius:14px;overflow:hidden;padding:10px}
+.trackbox svg{width:100%;height:auto;display:block}
+.track-line{fill:none;stroke:#778293;stroke-width:19;stroke-linecap:round;stroke-linejoin:round}
+.track-inner{fill:none;stroke:#151a22;stroke-width:13;stroke-linecap:round;stroke-linejoin:round}
+.car{filter:drop-shadow(0 0 5px #fff8)}
+.car1{fill:#ed2638}.car2{fill:#4c9eff}.car3{fill:#f1d35e}
+.car-moving{animation:drive 9s linear infinite}
+.car-moving.delay{animation-delay:-3s}.car-moving.delay2{animation-delay:-6s}
+@keyframes drive{from{offset-distance:0%}to{offset-distance:100%}}
+/* fallback animation on track via motion path */
+.moving-dot{offset-path:path("M 90 190 C 80 70 220 55 340 80 C 490 100 535 200 460 265 C 380 330 170 300 110 245 C 70 210 90 190 90 190");offset-rotate:auto;animation:lap 9s linear infinite}
+.moving-dot.d2{animation-delay:-3s}.moving-dot.d3{animation-delay:-6s}
+@keyframes lap{to{offset-distance:100%}}
+.metric{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:12px}
+.metric:last-child{border:0}
+.metric b{color:var(--text)}
+.chartbox{height:270px;position:relative;margin-top:12px}
+.chartbox canvas{width:100%!important;height:100%!important}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.engineering-card{background:linear-gradient(140deg,#171e29,#10141c);border:1px solid var(--line);padding:18px;border-radius:13px;min-height:160px}
+.engineering-card .number{color:var(--red);font-size:12px;font-weight:900;letter-spacing:2px}
+.engineering-card p{font-size:12px}
+.rangeval{font-size:19px;font-weight:800;color:white}
+.footer{border-top:1px solid var(--line);padding:24px 0;color:var(--muted);font-size:11px;margin-top:50px}
+.small{font-size:11px}
+@media(max-width:850px){
+ .hero{grid-template-columns:1fr}.col-3,.col-4,.col-5,.col-6,.col-7,.col-8{grid-column:span 12}
+ .nav{max-width:100%}.topinner{align-items:flex-start;flex-direction:column}.topinner{gap:8px}
+ .two-col{grid-template-columns:1fr}main{padding:18px 13px 50px}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+ <div class="topinner">
+  <div class="brand"><div class="brandmark"></div><div>APEX<small>BEYOND THE RACING LINE</small></div></div>
+  <nav class="nav" id="nav">
+   <button class="active" data-page="home">Overview</button>
+   <button data-page="track">Track simulator</button>
+   <button data-page="race">Race analysis</button>
+   <button data-page="intel">Race intelligence</button>
+   <button data-page="drivers">Drivers</button>
+   <button data-page="engineering">Engineering</button>
+   <button data-page="strategy">Strategy lab</button>
+   <button data-page="sources">Sources</button>
+  </nav>
+ </div>
+</header>
+
+<main>
+<!-- HOME -->
+<section class="page active" id="page-home">
+ <div class="hero">
+  <div>
+   <div class="eyebrow">Independent motorsport intelligence</div>
+   <h1>THE SCIENCE<br>BEHIND <span>SPEED.</span></h1>
+   <p class="sub">Explore Formula 1 through race data, driver performance, vehicle dynamics, strategy and engineering. From the first braking point to the final chequered flag.</p>
+   <div class="controlrow"><button class="btn" onclick="showPage('intel')">Explore Race Intelligence ↗</button><button class="btn secondary" onclick="showPage('engineering')">Enter Engineering Lab</button></div>
+  </div>
+  <div class="panel">
+   <div class="eyebrow">APEX / LIVE DATA STATUS</div>
+   <h2>Race intelligence, built on data.</h2>
+   <p>Historical session data from OpenF1 and race records from Jolpica.</p>
+   <div class="metric"><span>OpenF1 historical data</span><b id="ofStatus">Not loaded</b></div>
+   <div class="metric"><span>Jolpica race database</span><b id="jStatus">Not loaded</b></div>
+   <div class="metric"><span>Data coverage</span><b>1950–present*</b></div>
+   <p class="small">*Coverage varies by dataset. OpenF1 historical sessions begin in 2023.</p>
+  </div>
+ </div>
+ <div class="grid">
+  <div class="panel col-3"><div class="statlabel">Current season</div><div class="stat" id="homeSeason">2026</div><p class="small">Season calendar</p></div>
+  <div class="panel col-3"><div class="statlabel">Scheduled rounds</div><div class="stat" id="homeRounds">—</div><p class="small">From Jolpica calendar</p></div>
+  <div class="panel col-3"><div class="statlabel">Latest race</div><div class="stat" id="homeLatest">Loading…</div><p class="small" id="homeLatestDate">Race record</p></div>
+  <div class="panel col-3"><div class="statlabel">Data platform</div><div class="stat">APEX 2.0</div><p class="small">Independent analysis</p></div>
+ </div>
+ <div class="sectionhead"><div><div class="eyebrow">The racing line</div><h2>Explore the machine.</h2></div><p>Choose a discipline to investigate</p></div>
+ <div class="grid">
+  <div class="panel col-4"><h3>01 / Race intelligence</h3><p>Lap times, sectors, tyre strategies, pit stops, race control and car telemetry.</p><button class="btn secondary" onclick="showPage('intel')">Open data lab →</button></div>
+  <div class="panel col-4"><h3>02 / Vehicle engineering</h3><p>Understand aerodynamics, grip, braking, suspension and power delivery.</p><button class="btn secondary" onclick="showPage('engineering')">Explore engineering →</button></div>
+  <div class="panel col-4"><h3>03 / Race strategy</h3><p>Experiment with tyre compounds, pit windows and estimated race pace.</p><button class="btn secondary" onclick="showPage('strategy')">Open simulator →</button></div>
+ </div>
+ <div class="sectionhead"><div><div class="eyebrow">Circuit visualisation</div><h2>A lap in motion.</h2></div></div>
+ <div class="trackbox">
+  <svg viewBox="0 0 600 350" role="img" aria-label="Illustrative animated circuit with moving cars">
+   <path class="track-line" d="M95 190 C75 100 145 55 260 70 C400 45 510 100 500 190 C520 275 420 310 300 285 C190 320 90 280 95 190Z"/>
+   <path class="track-inner" d="M95 190 C75 100 145 55 260 70 C400 45 510 100 500 190 C520 275 420 310 300 285 C190 320 90 280 95 190Z"/>
+   <path d="M95 175 L95 205" stroke="#fff" stroke-width="4"/>
+   <g class="moving-dot"><rect x="-9" y="-5" width="20" height="10" rx="3" fill="#ed2638"/></g>
+   <g class="moving-dot d2"><rect x="-9" y="-5" width="20" height="10" rx="3" fill="#4c9eff"/></g>
+   <g class="moving-dot d3"><rect x="-9" y="-5" width="20" height="10" rx="3" fill="#f1d35e"/></g>
+   <text x="300" y="165" text-anchor="middle" fill="#fff" font-size="22" font-weight="900" letter-spacing="5">APEX</text>
+   <text x="300" y="188" text-anchor="middle" fill="#8993a4" font-size="10" letter-spacing="2">CIRCUIT SIMULATION</text>
+   <text x="300" y="207" text-anchor="middle" fill="#8993a4" font-size="9">Illustrative track · not GPS telemetry</text>
+  </svg>
+ </div>
+ <div class="notice">APEX is an independent educational project and is not affiliated with Formula 1, the FIA, or any racing team.</div>
+</section>
+
+<!-- TRACK -->
+<section class="page" id="page-track">
+ <div class="eyebrow">02 / Circuit visualisation</div><h2>Track simulator</h2>
+ <p>Watch three illustrative cars circulate around a fictional circuit. This is a visual demonstration, not a real-time race replay.</p>
+ <div class="trackbox" style="margin-top:18px">
+  <svg viewBox="0 0 600 350">
+   <path class="track-line" d="M95 190 C75 100 145 55 260 70 C400 45 510 100 500 190 C520 275 420 310 300 285 C190 320 90 280 95 190Z"/>
+   <path class="track-inner" d="M95 190 C75 100 145 55 260 70 C400 45 510 100 500 190 C520 275 420 310 300 285 C190 320 90 280 95 190Z"/>
+   <g class="moving-dot"><rect x="-10" y="-5" width="22" height="10" rx="3" fill="#ed2638"/></g>
+   <g class="moving-dot d2"><rect x="-10" y="-5" width="22" height="10" rx="3" fill="#4c9eff"/></g>
+   <g class="moving-dot d3"><rect x="-10" y="-5" width="22" height="10" rx="3" fill="#f1d35e"/></g>
+   <text x="300" y="175" text-anchor="middle" fill="white" font-size="22" font-weight="900">APEX</text>
+   <text x="300" y="198" text-anchor="middle" fill="#9aa4b4" font-size="10">DEMO CIRCUIT</text>
+  </svg>
+ </div>
+ <div class="grid">
+  <div class="panel col-4"><span class="tag red">CAR 01</span><h3>Red machine</h3><p>Illustrative lead car</p></div>
+  <div class="panel col-4"><span class="tag">CAR 02</span><h3>Blue machine</h3><p>Illustrative second car</p></div>
+  <div class="panel col-4"><span class="tag">CAR 03</span><h3>Yellow machine</h3><p>Illustrative third car</p></div>
+ </div>
+</section>
+
+<!-- RACE ANALYSIS -->
+<section class="page" id="page-race">
+ <div class="eyebrow">03 / Historical race records</div><h2>Race analysis</h2>
+ <p>Look up historical Grand Prix results using the Jolpica API.</p>
+ <div class="panel">
+  <div class="controlrow">
+   <div><label for="raceYear">Season</label><select id="raceYear"></select></div>
+   <div><label for="raceRound">Round</label><select id="raceRound"><option value="">Choose a round</option></select></div>
+   <button class="btn" id="loadRace">Load race</button>
+  </div>
+  <div class="status" id="raceStatus" aria-live="polite">Choose a season and round.</div>
+ </div>
+ <div id="raceOutput"></div>
+</section>
+
+<!-- RACE INTELLIGENCE -->
+<section class="page" id="page-intel">
+ <div class="eyebrow">04 / OpenF1 data laboratory</div><h2>Race intelligence</h2>
+ <p>Investigate historical sessions, lap performance, tyre usage, pit stops, race-control events and car telemetry.</p>
+ <div class="notice">OpenF1 historical data is available from 2023 onwards. Real-time access may require a subscription. A session may not contain every data category.</div>
+ <div class="panel">
+  <h3>Session selection</h3>
+  <div class="controlrow">
+   <div><label for="ofYear">Season</label><select id="ofYear"></select></div>
+   <button class="btn" id="ofLoadSessions">Find sessions</button>
+   <div><label for="ofSession">Session</label><select id="ofSession"><option value="">Load a season first</option></select></div>
+   <button class="btn" id="ofLoadSession">Analyse session</button>
+  </div>
+  <div class="status" id="ofMessage" aria-live="polite">Select a season to begin.</div>
+  <div id="ofSessionMeta"></div>
+ </div>
+ <div id="ofResults"></div>
+ <div class="sectionhead"><div><div class="eyebrow">Vehicle data</div><h2>Telemetry explorer</h2></div></div>
+ <div class="panel">
+  <p>Explore recorded speed, throttle, braking, gear and RPM samples for one selected driver.</p>
+  <div class="controlrow">
+   <div><label for="ofDriver">Driver</label><select id="ofDriver"><option value="">Load a session first</option></select></div>
+   <button class="btn" id="ofLoadTelemetry">Load telemetry</button>
+  </div>
+  <div class="status" id="telemetryStatus" aria-live="polite"></div>
+  <div class="grid">
+   <div class="panel col-4"><div class="statlabel">Peak recorded speed</div><div class="stat" id="telePeak">—</div><p class="small">km/h</p></div>
+   <div class="panel col-4"><div class="statlabel">Average throttle</div><div class="stat" id="teleThrottle">—</div><p class="small">Percent of samples</p></div>
+   <div class="panel col-4"><div class="statlabel">Brake samples</div><div class="stat" id="teleBrake">—</div><p class="small">Percent of samples</p></div>
+  </div>
+  <div class="chartbox"><canvas id="telemetryChart"></canvas></div>
+  <div class="notice">Telemetry is sampled data. The chart uses a reduced sample set for browser performance. It is not a complete engineering reconstruction of the car.</div>
+ </div>
+</section>
+
+<!-- DRIVERS -->
+<section class="page" id="page-drivers">
+ <div class="eyebrow">05 / Driver performance</div><h2>Driver standings</h2>
+ <p>Compare championship standings across historical seasons.</p>
+ <div class="panel">
+  <div class="controlrow"><div><label for="driverYear">Season</label><select id="driverYear"></select></div><button class="btn" id="loadDrivers">Load standings</button></div>
+  <div class="status" id="driverStatus"></div>
+  <div id="driverOutput"></div>
+ </div>
+ <div class="sectionhead"><div><div class="eyebrow">Comparison</div><h2>Compare two drivers</h2></div></div>
+ <div class="panel">
+  <div class="controlrow">
+   <div><label for="driverA">Driver A</label><select id="driverA"></select></div>
+   <div><label for="driverB">Driver B</label><select id="driverB"></select></div>
+   <button class="btn" id="compareDrivers">Compare</button>
+  </div>
+  <div id="driverCompare"></div>
+ </div>
+</section>
+
+<!-- ENGINEERING -->
+<section class="page" id="page-engineering">
+ <div class="eyebrow">06 / Technical knowledge base</div><h2>Engineering laboratory</h2>
+ <p>Explore the physics and engineering principles that influence a modern racing car.</p>
+ <div class="grid">
+  <div class="engineering-card col-6"><div class="number">01 / AERODYNAMICS</div><h3>Downforce and drag</h3><p>Wings and underbody airflow create aerodynamic load. More downforce can increase cornering grip, but aerodynamic drag can reduce straight-line speed.</p><div class="metric"><span>Downforce</span><b>Grip potential ↑</b></div><div class="metric"><span>Drag</span><b>Air resistance ↑</b></div></div>
+  <div class="engineering-card col-6"><div class="number">02 / TYRE DYNAMICS</div><h3>The contact patch</h3><p>Tyres transmit braking, acceleration and cornering forces to the road. Temperature, pressure, construction, compound and load all affect performance.</p><div class="metric"><span>Grip</span><b>Limited by conditions</b></div><div class="metric"><span>Degradation</span><b>Changes over a stint</b></div></div>
+  <div class="engineering-card col-6"><div class="number">03 / VEHICLE DYNAMICS</div><h3>Weight transfer</h3><p>Acceleration, braking and cornering change the distribution of vertical load across the tyres. Suspension geometry and setup influence how the car responds.</p><div class="metric"><span>Braking</span><b>Load shifts forward</b></div><div class="metric"><span>Acceleration</span><b>Load shifts rearward</b></div></div>
+  <div class="engineering-card col-6"><div class="number">04 / POWER UNIT</div><h3>Energy management</h3><p>A modern hybrid power unit combines an internal combustion engine with electrical energy systems. Energy recovery and deployment influence performance.</p><div class="metric"><span>Energy recovery</span><b>Harvesting</b></div><div class="metric"><span>Energy deployment</span><b>Performance</b></div></div>
+  <div class="engineering-card col-6"><div class="number">05 / BRAKING</div><h3>Braking performance</h3><p>Braking performance depends on tyre grip, aerodynamic load, brake systems, temperature and driver input. Brake balance influences front-to-rear braking distribution.</p></div>
+  <div class="engineering-card col-6"><div class="number">06 / SETUP</div><h3>Finding the compromise</h3><p>Ride height, suspension stiffness, camber, toe and aerodynamic configuration interact. A setup that works at one circuit may not be ideal at another.</p></div>
+ </div>
+ <div class="sectionhead"><div><div class="eyebrow">Fundamental physics</div><h2>Cornering force</h2></div></div>
+ <div class="panel">
+  <p>A simplified relationship for lateral acceleration is:</p>
+  <h2 style="color:var(--red)">a = v² / r</h2>
+  <p>Where <b>v</b> is speed and <b>r</b> is corner radius. Higher speed or a tighter corner requires greater lateral acceleration.</p>
+  <div class="controlrow">
+   <div><label for="physicsSpeed">Speed (km/h)</label><input id="physicsSpeed" type="range" min="40" max="300" value="180"></div>
+   <span class="rangeval" id="physicsSpeedVal">180 km/h</span>
+   <div><label for="physicsRadius">Corner radius (m)</label><input id="physicsRadius" type="range" min="30" max="300" value="100"></div>
+   <span class="rangeval" id="physicsRadiusVal">100 m</span>
+  </div>
+  <div class="stat" id="physicsResult">25.00 m/s²</div>
+  <p class="small">Simplified physics demonstration. Real tyre and vehicle behaviour is more complex.</p>
+ </div>
+</section>
+
+<!-- STRATEGY -->
+<section class="page" id="page-strategy">
+ <div class="eyebrow">07 / Strategy modelling</div><h2>Strategy laboratory</h2>
+ <p>Experiment with simplified tyre and pit-stop decisions. This is an educational model, not a race prediction engine.</p>
+ <div class="panel">
+  <div class="grid">
+   <div class="col-4"><label for="strategyLaps">Race distance (laps)</label><input id="strategyLaps" type="number" min="10" max="100" value="50"></div>
+   <div class="col-4"><label for="strategyStint">Pit stop lap</label><input id="strategyStint" type="number" min="2" max="99" value="25"></div>
+   <div class="col-4"><label for="strategyPit">Pit lane time loss (seconds)</label><input id="strategyPit" type="number" min="5" max="60" value="22"></div>
+   <div class="col-4"><label for="strategyFirst">First tyre</label><select id="strategyFirst"><option value="soft">Soft</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select></div>
+   <div class="col-4"><label for="strategySecond">Second tyre</label><select id="strategySecond"><option value="soft">Soft</option><option value="medium">Medium</option><option value="hard" selected>Hard</option></select></div>
+   <div class="col-4"><label for="strategyBase">Reference lap time (seconds)</label><input id="strategyBase" type="number" min="60" max="150" value="90"></div>
+  </div>
+  <button class="btn" id="runStrategy">Calculate strategy</button>
+  <div id="strategyOutput" class="status"></div>
+ </div>
+ <div class="notice">The simulator uses invented illustrative tyre pace and degradation assumptions. It does not represent actual team data or predict real race outcomes.</div>
+</section>
+
+<!-- SOURCES -->
+<section class="page" id="page-sources">
+ <div class="eyebrow">08 / Transparency</div><h2>Sources & methodology</h2>
+ <p>APEX aims to make motorsport analysis understandable, reproducible and transparent.</p>
+ <div class="grid">
+  <div class="panel col-6"><h3>OpenF1</h3><p>Historical session, lap, stint, pit-stop, race-control, position and car-data endpoints. Historical coverage starts in 2023.</p><a href="https://openf1.org/docs/" target="_blank" rel="noopener">Official documentation ↗</a></div>
+  <div class="panel col-6"><h3>Jolpica-F1</h3><p>Open-source API for historical race calendars, results, driver standings, qualifying, laps and pit stops.</p><a href="https://api.jolpi.ca/docs/" target="_blank" rel="noopener">API documentation ↗</a></div>
+  <div class="panel col-6"><h3>FIA</h3><p>Regulations, technical documents, event documents and official motorsport information.</p><a href="https://www.fia.com/" target="_blank" rel="noopener">FIA website ↗</a></div>
+  <div class="panel col-6"><h3>FastF1</h3><p>Open-source Python package for accessing and analysing Formula 1 timing data. Useful for future deeper analysis.</p><a href="https://docs.fastf1.dev/" target="_blank" rel="noopener">FastF1 documentation ↗</a></div>
+  <div class="panel col-6"><h3>Wikipedia</h3><p>Community-edited reference material for historical background, circuits, drivers and championship context. Important facts should be cross-checked.</p><a href="https://en.wikipedia.org/wiki/Formula_One" target="_blank" rel="noopener">Formula One overview ↗</a></div>
+  <div class="panel col-6"><h3>Chart.js</h3><p>Open-source charting library used to display telemetry and data visualisations.</p><a href="https://www.chartjs.org/docs/latest/" target="_blank" rel="noopener">Chart.js documentation ↗</a></div>
+ </div>
+ <div class="panel">
+  <h3>Data limitations</h3>
+  <ul class="muted small">
+   <li>Data coverage varies by season, session and endpoint.</li>
+   <li>OpenF1 historical data is not a substitute for live timing.</li>
+   <li>Missing or unavailable records are not treated as zero.</li>
+   <li>APEX does not claim access to confidential team telemetry or proprietary setup information.</li>
+   <li>Engineering explanations are educational summaries, not official team engineering reports.</li>
+   <li>Strategy calculations use simplified assumptions and should not be interpreted as real team strategy.</li>
+  </ul>
+ </div>
+</section>
+
+<div class="footer">
+ <b>APEX</b> — Beyond The Racing Line.<br>
+ Independent educational motorsport analysis. Not affiliated with Formula 1 or the FIA.
+ <br><span id="footerYear"></span>
+</div>
+</main>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const JOLPICA = "https://api.jolpi.ca/ergast/f1";
+const OPENF1 = "https://api.openf1.org/v1";
+const CURRENT_YEAR = new Date().getFullYear();
+let currentRace = null;
+let currentDrivers = [];
+let ofSessions = [];
+let ofDriverMap = {};
+let ofCurrentSession = null;
+let telemetryChart = null;
+let standingsCache = [];
+
+function esc(value){
+ return String(value ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function showPage(name){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
+ const page=$("#page-"+name);
+ if(page) page.classList.add("active");
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+$("#nav").addEventListener("click",e=>{
+ const b=e.target.closest("button[data-page]");
+ if(b) showPage(b.dataset.page);
+});
+async function getJSON(url){
+ const response=await fetch(url);
+ if(!response.ok) throw new Error("Request failed ("+response.status+")");
+ return response.json();
+}
+function setStatus(id,message,type=""){
+ const el=$("#"+id);
+ if(!el)return;
+ el.textContent=message;
+ el.className="status "+type;
+}
+function formatTime(value){
+ if(value===null||value===undefined||value==="")return "—";
+ if(typeof value==="number")return value.toFixed(3)+" s";
+ return String(value);
+}
+function formatDate(value){
+ if(!value)return "—";
+ const d=new Date(value);
+ return Number.isNaN(d.getTime())?value:d.toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"});
+}
+function fillYearSelect(id,start=1950,end=CURRENT_YEAR){
+ const el=$("#"+id);
+ if(!el)return;
+ el.innerHTML="";
+ for(let y=end;y>=start;y--){
+  const op=document.createElement("option");
+  op.value=y;op.textContent=y;el.appendChild(op);
+ }
+}
+function table(headers,rows){
+ if(!rows.length)return '<p class="muted small">No records available for this selection.</p>';
+ return '<div class="tablewrap"><table><thead><tr>'+headers.map(h=>"<th>"+esc(h)+"</th>").join("")+'</tr></thead><tbody>'+
+ rows.map(row=>"<tr>"+row.map(v=>"<td>"+(v??"—")+"</td>").join("")+"</tr>").join("")+
+ "</tbody></table></div>";
+}
+
+/* HOME DATA */
+async function loadHome(){
+ $("#homeSeason").textContent=CURRENT_YEAR;
+ $("#footerYear").textContent="© "+CURRENT_YEAR+" APEX";
+ try{
+  const data=await getJSON(`${JOLPICA}/${CURRENT_YEAR}.json`);
+  const races=data.MRData?.RaceTable?.Races||[];
+  $("#homeRounds").textContent=races.length||"—";
+  $("#jStatus").textContent="Connected";
+  $("#jStatus").style.color="var(--green)";
+  const past=races.filter(r=>r.date && new Date(r.date+"T23:59:59")<new Date());
+  const latest=past[past.length-1];
+  if(latest){
+   $("#homeLatest").textContent=latest.raceName;
+   $("#homeLatestDate").textContent=formatDate(latest.date);
+  }else{
+   $("#homeLatest").textContent="No completed race";
+   $("#homeLatestDate").textContent="Check race calendar";
+  }
+ }catch(e){
+  $("#homeRounds").textContent="—";
+  $("#homeLatest").textContent="Unavailable";
+  $("#jStatus").textContent="Unavailable";
+ }
+ $("#ofStatus").textContent="Historical API";
+}
+
+/* RACE ANALYSIS */
+async function loadRaceCalendar(){
+ const year=$("#raceYear").value;
+ $("#raceRound").innerHTML='<option value="">Loading rounds…</option>';
+ setStatus("raceStatus","Loading season calendar…");
+ try{
+  const data=await getJSON(`${JOLPICA}/${year}.json`);
+  const races=data.MRData?.RaceTable?.Races||[];
+  $("#raceRound").innerHTML='<option value="">Choose a round</option>';
+  races.forEach(r=>{
+   const op=document.createElement("option");
+   op.value=r.round;op.textContent=`Round ${r.round} — ${r.raceName}`;
+   $("#raceRound").appendChild(op);
+  });
+  setStatus("raceStatus",`${races.length} rounds found for ${year}.`,"good");
+ }catch(e){
+  $("#raceRound").innerHTML='<option value="">Unable to load</option>';
+  setStatus("raceStatus","Could not load the calendar. Please try again.","error");
+ }
+}
+async function loadRace(){
+ const year=$("#raceYear").value,round=$("#raceRound").value;
+ if(!round){setStatus("raceStatus","Choose a round first.","error");return}
+ setStatus("raceStatus","Loading race results…");
+ $("#raceOutput").innerHTML="";
+ try{
+  const [raceData,resultData,qualData]=await Promise.all([
+   getJSON(`${JOLPICA}/${year}/${round}.json`),
+   getJSON(`${JOLPICA}/${year}/${round}/results.json`),
+   getJSON(`${JOLPICA}/${year}/${round}/qualifying.json`).catch(()=>null)
+  ]);
+  const race=raceData.MRData?.RaceTable?.Races?.[0];
+  const results=resultData.MRData?.RaceTable?.Races?.[0]?.Results||[];
+  const qualifying=qualData?.MRData?.RaceTable?.Races?.[0]?.QualifyingResults||[];
+  currentRace={year,round,race,results};
+  const title=race?.raceName||"Race";
+  let html=`<div class="sectionhead"><div><div class="eyebrow">${esc(year)} / ROUND ${esc(round)}</div><h2>${esc(title)}</h2><p>${esc(race?.Circuit?.circuitName||"")} · ${esc(race?.Circuit?.Location?.locality||"")}</p></div></div>`;
+  html+='<div class="grid"><div class="panel col-4"><div class="statlabel">Race date</div><div class="stat">'+esc(formatDate(race?.date))+'</div></div><div class="panel col-4"><div class="statlabel">Classified finishers</div><div class="stat">'+results.length+'</div></div><div class="panel col-4"><div class="statlabel">Pole position</div><div class="stat">'+esc(qualifying[0]?.Driver?.code||qualifying[0]?.Driver?.familyName||"—")+'</div></div></div>';
+  html+='<div class="panel"><h3>Race classification</h3>'+table(["Pos","Driver","Constructor","Grid","Laps","Time / Status","Points"],results.map(r=>[
+   esc(r.position),esc(r.Driver?.givenName+" "+r.Driver?.familyName),esc(r.Constructor?.name),esc(r.grid),esc(r.laps),esc(r.Time?.time||r.status),esc(r.points)
+  ]))+'</div>';
+  if(qualifying.length){
+   html+='<div class="panel"><h3>Qualifying results</h3>'+table(["Pos","Driver","Team","Q1","Q2","Q3"],qualifying.map(q=>[
+    esc(q.position),esc(q.Driver?.givenName+" "+q.Driver?.familyName),esc(q.Constructor?.name),esc(q.Q1),esc(q.Q2),esc(q.Q3)
+   ]))+'</div>';
+  }
+  $("#raceOutput").innerHTML=html;
+  setStatus("raceStatus","Race data loaded successfully.","good");
+ }catch(e){
+  setStatus("raceStatus","Unable to retrieve race data. The API may be temporarily unavailable.","error");
+ }
+}
+
+/* DRIVER STANDINGS */
+async function loadDriverStandings(){
+ const year=$("#driverYear").value;
+ setStatus("driverStatus","Loading driver standings…");
+ $("#driverOutput").innerHTML="";
+ try{
+  const data=await getJSON(`${JOLPICA}/${year}/driverStandings.json`);
+  const list=data.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings||[];
+  standingsCache=list;
+  currentDrivers=list;
+  $("#driverOutput").innerHTML=table(["Pos","Driver","Team","Points","Wins"],list.map(d=>[
+   esc(d.position),esc(d.Driver?.givenName+" "+d.Driver?.familyName),esc(d.Constructors?.map(c=>c.name).join(", ")),esc(d.points),esc(d.wins)
+  ]));
+  const options=list.map(d=>`<option value="${esc(d.Driver.driverId)}">${esc(d.Driver.givenName+" "+d.Driver.familyName)}</option>`).join("");
+  $("#driverA").innerHTML=options;
+  $("#driverB").innerHTML=options;
+  if(list.length>1)$("#driverB").selectedIndex=1;
+  setStatus("driverStatus",`${list.length} driver standings records loaded.`,"good");
+ }catch(e){setStatus("driverStatus","Could not load standings.","error")}
+}
+function compareDrivers(){
+ const a=standingsCache.find(d=>d.Driver.driverId===$("#driverA").value);
+ const b=standingsCache.find(d=>d.Driver.driverId===$("#driverB").value);
+ if(!a||!b){$("#driverCompare").innerHTML='<p class="muted">Load standings first.</p>';return}
+ $("#driverCompare").innerHTML=table(["Metric",a.Driver.familyName,b.Driver.familyName],[
+  ["Championship position",esc(a.position),esc(b.position)],
+  ["Points",esc(a.points),esc(b.points)],
+  ["Wins",esc(a.wins),esc(b.wins)],
+  ["Team",esc(a.Constructors?.[0]?.name),esc(b.Constructors?.[0]?.name)]
+ ]);
+}
+
+/* OPENF1 */
+async function ofGet(endpoint,params={}){
+ const url=new URL(`${OPENF1}/${endpoint}`);
+ Object.entries(params).forEach(([k,v])=>{if(v!==undefined&&v!==null&&v!=="")url.searchParams.set(k,v)});
+ return getJSON(url.toString());
+}
+function initOpenF1(){
+ fillYearSelect("ofYear",2023,CURRENT_YEAR);
+ $("#ofYear").value=CURRENT_YEAR;
+ $("#ofLoadSessions").addEventListener("click",loadOpenF1Sessions);
+ $("#ofLoadSession").addEventListener("click",loadOpenF1Session);
+ $("#ofLoadTelemetry").addEventListener("click",loadOpenF1Telemetry);
+ $("#ofSession").addEventListener("change",()=>{
+  const key=$("#ofSession").value;
+  ofCurrentSession=ofSessions.find(s=>String(s.session_key)===key)||null;
+  renderSessionMeta();
+ });
+}
+async function loadOpenF1Sessions(){
+ const year=$("#ofYear").value;
+ setStatus("ofMessage",`Finding ${year} sessions…`);
+ $("#ofSession").innerHTML="";
+ $("#ofResults").innerHTML="";
+ try{
+  ofSessions=await ofGet("sessions",{year});
+  ofSessions.sort((a,b)=>new Date(a.date_start)-new Date(b.date_start));
+  $("#ofSession").innerHTML="";
+  ofSessions.forEach(s=>{
+   const op=document.createElement("option");
+   op.value=s.session_key;
+   op.textContent=`${s.meeting_name||s.circuit_short_name||"Event"} — ${s.session_name} (${formatDate(s.date_start)})`;
+   $("#ofSession").appendChild(op);
+  });
+  const preferred=ofSessions.filter(s=>String(s.session_name).toLowerCase()==="race").at(-1)||ofSessions.at(-1);
+  if(preferred)$("#ofSession").value=preferred.session_key;
+  ofCurrentSession=preferred||null;
+  renderSessionMeta();
+  setStatus("ofMessage",`${ofSessions.length} sessions found. Choose one and analyse it.`,"good");
+  $("#ofStatus").textContent="Connected";
+  $("#ofStatus").style.color="var(--green)";
+ }catch(e){
+  setStatus("ofMessage","Could not load sessions. Check your connection or try another season.","error");
+ }
+}
+function renderSessionMeta(){
+ const s=ofCurrentSession;
+ if(!s){$("#ofSessionMeta").innerHTML="";return}
+ $("#ofSessionMeta").innerHTML=`<div class="grid">
+ <div class="panel col-4"><div class="statlabel">Event</div><h3>${esc(s.meeting_name||s.circuit_short_name)}</h3></div>
+ <div class="panel col-4"><div class="statlabel">Session</div><h3>${esc(s.session_name)}</h3></div>
+ <div class="panel col-4"><div class="statlabel">Location</div><h3>${esc([s.location,s.country_name].filter(Boolean).join(", "))}</h3></div>
+ </div>`;
+}
+function driverName(n){
+ const d=ofDriverMap[String(n)];
+ return d?.full_name||d?.name_acronym||("Driver "+n);
+}
+function safeTime(t){
+ if(t===null||t===undefined)return "—";
+ return Number(t).toFixed(3)+" s";
+}
+function renderOfTable(title,headers,rows,description=""){
+ return `<div class="panel"><h3>${esc(title)}</h3>${description?`<p class="small">${esc(description)}</p>`:""}${table(headers,rows)}</div>`;
+}
+async function loadOpenF1Session(){
+ const s=ofCurrentSession;
+ if(!s){setStatus("ofMessage","Load sessions and choose a session first.","error");return}
+ setStatus("ofMessage","Downloading session data. This can take a little time…");
+ $("#ofResults").innerHTML="";
+ $("#telemetryStatus").textContent="";
+ const endpoints=["drivers","session_result","laps","stints","pit","race_control","position"];
+ const settled=await Promise.allSettled(endpoints.map(endpoint=>ofGet(endpoint,{session_key:s.session_key})));
+ const data={};
+ endpoints.forEach((name,i)=>data[name]=settled[i].status==="fulfilled"?settled[i].value:[]);
+ const drivers=data.drivers||[];
+ ofDriverMap={};
+ drivers.forEach(d=>ofDriverMap[String(d.driver_number)]=d);
+ const driverOptions=drivers.slice().sort((a,b)=>a.driver_number-b.driver_number).map(d=>`<option value="${esc(d.driver_number)}">${esc(d.name_acronym||d.full_name)} — ${esc(d.team_name||"")}</option>`).join("");
+ $("#ofDriver").innerHTML=driverOptions||'<option value="">No drivers available</option>';
+ let html="";
+ const results=(data.session_result||[]).slice().sort((a,b)=>(a.position||999)-(b.position||999));
+ html+=renderOfTable("Session classification",["Pos","Driver","Team","Laps","Time","Gap","Status"],results.map(r=>[
+  esc(r.position),esc(driverName(r.driver_number)),esc(ofDriverMap[String(r.driver_number)]?.team_name),esc(r.number_of_laps),esc(r.duration),esc(r.gap_to_leader),r.dsq?"DSQ":r.dnf?"DNF":r.dns?"DNS":"—"
+ ]),"Classification data provided by OpenF1 where available.");
+ const laps=data.laps||[];
+ const best={};
+ laps.filter(l=>l.lap_duration&&!l.is_pit_out_lap).forEach(l=>{
+  const k=l.driver_number;
+  if(!best[k]||l.lap_duration<best[k].lap_duration)best[k]=l;
+ });
+ const bestRows=Object.values(best).sort((a,b)=>a.lap_duration-b.lap_duration).map(l=>[
+  esc(driverName(l.driver_number)),safeTime(l.lap_duration),esc(l.lap_number),safeTime(l.duration_sector_1),safeTime(l.duration_sector_2),safeTime(l.duration_sector_3),esc(l.st_speed)
+ ]);
+ html+=renderOfTable("Fastest recorded laps",["Driver","Lap time","Lap","Sector 1","Sector 2","Sector 3","Speed trap"],bestRows,"Best available lap per driver, excluding marked pit-out laps. This is not necessarily an official fastest-lap classification.");
+ const stints=data.stints||[];
+ html+=renderOfTable("Tyre stints",["Driver","Stint","Compound","Lap range","Length","Tyre age at start"],stints.map(t=>[
+  esc(driverName(t.driver_number)),esc(t.stint_number),`<span class="tag">${esc(t.compound||"Unknown")}</span>`,`${esc(t.lap_start)}–${esc(t.lap_end)}`,esc(t.lap_end&&t.lap_start?t.lap_end-t.lap_start+1:"—"),esc(t.tyre_age_at_start)
+ ]),"Stint lengths are calculated from the recorded start and end laps.");
+ const pits=data.pit||[];
+ html+=renderOfTable("Pit stops",["Driver","Lap","Pit lane duration","Stop duration"],pits.map(p=>[
+  esc(driverName(p.driver_number)),esc(p.lap_number),safeTime(p.lane_duration),safeTime(p.stop_duration)
+ ]));
+ const control=(data.race_control||[]).slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,35);
+ html+=renderOfTable("Race-control messages",["Time","Lap","Category","Flag","Message"],control.map(c=>[
+  esc(c.date?new Date(c.date).toLocaleTimeString():"—"),esc(c.lap_number),esc(c.category),esc(c.flag),esc(c.message)
+ ]),"Most recent 35 messages returned for this session.");
+ const positions=data.position||[];
+ html+=`<div class="panel"><h3>Position data</h3><div class="stat">${positions.length.toLocaleString()}</div><p>Recorded position-change samples returned for this session.</p><p class="small">Position samples are available for further analysis. This page does not invent a track replay from incomplete position data.</p></div>`;
+ const failed=endpoints.filter((name,i)=>settled[i].status==="rejected");
+ if(failed.length)html+=`<div class="notice">Some data categories were unavailable: ${esc(failed.join(", "))}. Other sections may still be usable.</div>`;
+ $("#ofResults").innerHTML=html;
+ setStatus("ofMessage",`Session loaded. ${drivers.length} drivers · ${laps.length} lap records · ${stints.length} stints · ${pits.length} pit records.`,"good");
+}
+
+/* TELEMETRY */
+async function loadOpenF1Telemetry(){
+ const s=ofCurrentSession,driver=$("#ofDriver").value;
+ if(!s||!driver){setStatus("telemetryStatus","Choose a session and driver first.","error");return}
+ setStatus("telemetryStatus","Downloading car data…");
+ try{
+  const raw=await ofGet("car_data",{session_key:s.session_key,driver_number:driver});
+  if(!raw.length){setStatus("telemetryStatus","No telemetry records found for this driver and session.","error");return}
+  raw.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const step=Math.max(1,Math.ceil(raw.length/1000));
+  const points=raw.filter((_,i)=>i%step===0);
+  const peak=Math.max(...raw.map(r=>Number(r.speed)||0));
+  const throttle=raw.reduce((n,r)=>n+(Number(r.throttle)>0?1:0),0)/raw.length*100;
+  const brake=raw.reduce((n,r)=>n+(Number(r.brake)>0?1:0),0)/raw.length*100;
+  $("#telePeak").textContent=Math.round(peak);
+  $("#teleThrottle").textContent=throttle.toFixed(1)+"%";
+  $("#teleBrake").textContent=brake.toFixed(1)+"%";
+  if(telemetryChart)telemetryChart.destroy();
+  const ctx=$("#telemetryChart").getContext("2d");
+  telemetryChart=new Chart(ctx,{
+   type:"line",
+   data:{labels:points.map((r,i)=>i),datasets:[
+    {label:"Speed (km/h)",data:points.map(r=>r.speed),borderColor:"#ed2638",backgroundColor:"#ed263822",pointRadius:0,borderWidth:2,yAxisID:"y"},
+    {label:"Throttle (%)",data:points.map(r=>r.throttle),borderColor:"#64aaff",pointRadius:0,borderWidth:1,yAxisID:"y1"}
+   ]},
+   options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+    plugins:{legend:{labels:{color:"#c5ccda"}}},
+    scales:{x:{ticks:{color:"#929baa",maxTicksLimit:8},title:{display:true,text:"Recorded sample index",color:"#929baa"},grid:{color:"#252d3a"}},
+    y:{ticks:{color:"#ed8290"},title:{display:true,text:"Speed (km/h)",color:"#ed8290"},grid:{color:"#252d3a"}},
+    y1:{position:"right",min:0,max:100,ticks:{color:"#64aaff"},title:{display:true,text:"Throttle (%)",color:"#64aaff"},grid:{drawOnChartArea:false}}}
+   }
+  });
+  setStatus("telemetryStatus",`${raw.length.toLocaleString()} records loaded; chart displays ${points.length.toLocaleString()} sampled points.`,"good");
+ }catch(e){setStatus("telemetryStatus","Could not retrieve telemetry. Try another driver or session.","error")}
+}
+
+/* PHYSICS DEMONSTRATION */
+function updatePhysics(){
+ const v=Number($("#physicsSpeed").value),r=Number($("#physicsRadius").value);
+ $("#physicsSpeedVal").textContent=v+" km/h";
+ $("#physicsRadiusVal").textContent=r+" m";
+ const ms=v/3.6;
+ $("#physicsResult").textContent=(ms*ms/r).toFixed(2)+" m/s²";
+}
+$("#physicsSpeed").addEventListener("input",updatePhysics);
+$("#physicsRadius").addEventListener("input",updatePhysics);
+
+/* STRATEGY SIMULATOR */
+function runStrategy(){
+ const laps=Math.max(10,Math.min(100,Number($("#strategyLaps").value)||50));
+ const pitLap=Math.max(2,Math.min(laps-1,Number($("#strategyStint").value)||25));
+ const pitLoss=Math.max(5,Math.min(60,Number($("#strategyPit").value)||22));
+ const base=Math.max(60,Math.min(150,Number($("#strategyBase").value)||90));
+ const first=$("#strategyFirst").value,second=$("#strategySecond").value;
+ const pace={soft:-0.45,medium:0,hard:0.35};
+ const degradation={soft:0.095,medium:0.055,hard:0.03};
+ function stintTime(length,compound){
+  let total=0;
+  for(let i=0;i<length;i++)total+=base+pace[compound]+degradation[compound]*i;
+  return total;
+ }
+ const firstLength=pitLap,secondLength=laps-pitLap;
+ const total=stintTime(firstLength,first)+stintTime(secondLength,second)+pitLoss;
+ const noStop=stintTime(laps,first);
+ $("#strategyOutput").innerHTML=`<div class="grid">
+ <div class="panel col-4"><div class="statlabel">Two-stint model</div><div class="stat">${(total/60).toFixed(2)} min</div></div>
+ <div class="panel col-4"><div class="statlabel">Single-stint model</div><div class="stat">${(noStop/60).toFixed(2)} min</div></div>
+ <div class="panel col-4"><div class="statlabel">Modelled difference</div><div class="stat">${(total-noStop).toFixed(1)} s</div></div>
+ </div><p>Stint 1: ${firstLength} laps on ${first}. Stint 2: ${secondLength} laps on ${second}. Pit loss: ${pitLoss}s.</p><p class="small">This result follows the simplified assumptions shown in the simulator; it is not a recommendation for a real race.</p>`;
+}
+$("#runStrategy").addEventListener("click",runStrategy);
+
+/* INITIALISE */
+fillYearSelect("raceYear",1950,CURRENT_YEAR);
+fillYearSelect("driverYear",1950,CURRENT_YEAR);
+$("#raceYear").value=CURRENT_YEAR;
+$("#driverYear").value=CURRENT_YEAR;
+$("#raceYear").addEventListener("change",loadRaceCalendar);
+$("#loadRace").addEventListener("click",loadRace);
+$("#loadDrivers").addEventListener("click",loadDriverStandings);
+$("#compareDrivers").addEventListener("click",compareDrivers);
+initOpenF1();
+loadRaceCalendar();
+loadHome();
+updatePhysics();
+runStrategy();
+</script>
+</body>
+</html>
