@@ -1,0 +1,1418 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090a0c">
+<title>APEX | Racing & Engineering Lab</title>
+
+<style>
+:root{
+ --bg:#090a0c;
+ --panel:#12161c;
+ --panel2:#0d1116;
+ --line:#29303a;
+ --text:#f3f5f8;
+ --muted:#919aa7;
+ --red:#ff303e;
+ --gold:#e8bd69;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;background:var(--bg);color:var(--text);
+ font-family:Inter,Arial,sans-serif;
+}
+button,select,input{font:inherit}
+header{
+ position:sticky;top:0;z-index:20;
+ background:#090a0ced;backdrop-filter:blur(15px);
+ padding:17px 20px;border-bottom:1px solid var(--line);
+ display:flex;justify-content:space-between;align-items:center;
+}
+.brand{font-size:22px;font-weight:950;letter-spacing:4px}
+.brand span{color:var(--red)}
+.tag{font-size:9px;letter-spacing:2px;color:var(--muted)}
+main{max-width:1200px;margin:auto;padding:23px 15px 50px}
+.eyebrow{color:var(--red);font-size:10px;letter-spacing:3px;font-weight:900}
+h1{font-size:clamp(29px,6vw,49px);margin:9px 0}
+h2{font-size:18px;margin:0 0 14px}
+h3{font-size:13px;letter-spacing:1px}
+.subtitle{color:var(--muted);font-size:13px;line-height:1.8}
+.nav{
+ display:flex;gap:8px;overflow-x:auto;margin:22px 0;
+ scrollbar-width:none;
+}
+.nav button{white-space:nowrap;width:auto;margin:0}
+.nav button.active{background:var(--red);border-color:var(--red)}
+.panel{
+ background:var(--panel);border:1px solid var(--line);
+ border-radius:13px;padding:17px;margin-top:17px;
+}
+.controls{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;
+}
+label{
+ display:block;font-size:10px;color:var(--muted);
+ letter-spacing:1.4px;margin-bottom:7px;
+}
+select,button{
+ background:#090c10;color:white;border:1px solid #343b46;
+ border-radius:7px;padding:12px;width:100%;
+}
+button{cursor:pointer;font-weight:750}
+button.primary{background:var(--red);border-color:var(--red)}
+button:disabled{opacity:.4;cursor:not-allowed}
+.status{font-size:12px;color:var(--muted);margin-top:12px}
+.status.ok{color:#78dda0}
+.status.error{color:#ff7881}
+.section{display:none}
+.section.active{display:block}
+.trackbox{
+ background:#080b0e;border:1px solid var(--line);
+ border-radius:12px;overflow:hidden;margin-top:17px;
+}
+.trackhead{
+ display:flex;justify-content:space-between;gap:8px;
+ padding:13px 15px;border-bottom:1px solid var(--line);
+ font-size:10px;letter-spacing:1px;
+}
+canvas#track{
+ display:block;width:100%;height:auto;aspect-ratio:1.45;
+}
+.trackfoot{
+ padding:12px 15px;color:var(--muted);font-size:10px;
+ display:flex;justify-content:space-between;
+}
+.playcontrols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+input[type=range]{width:100%;accent-color:var(--red)}
+.timeinfo{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+.stat{
+ background:#0a0d11;border:1px solid var(--line);
+ padding:13px;border-radius:9px;
+}
+.stat small{font-size:9px;color:var(--muted);letter-spacing:1px}
+.stat strong{display:block;font-size:22px;margin-top:7px}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;color:var(--muted);font-weight:500;padding:11px 6px}
+td{padding:11px 6px;border-top:1px solid var(--line)}
+.teamdot{display:inline-block;width:4px;height:17px;margin-right:7px;vertical-align:middle}
+.legend{display:flex;flex-wrap:wrap;gap:11px;margin-top:12px}
+.legend span{font-size:10px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}
+
+/* TECH LAB */
+.tech-hero{
+ padding:23px 18px;border:1px solid var(--line);
+ border-radius:13px;
+ background:radial-gradient(ellipse at 85% 20%,#432028 0%,#17151b 32%,#10141a 75%);
+}
+.tech-hero h2{font-size:25px;margin:8px 0}
+.tech-layout{
+ display:grid;grid-template-columns:minmax(0,1.5fr) minmax(240px,.8fr);
+ gap:13px;margin-top:15px;
+}
+.viewer{
+ min-width:0;position:relative;overflow:hidden;
+ border:1px solid var(--line);border-radius:12px;
+ background:radial-gradient(ellipse at center,#202732,#080b10 75%);
+}
+#car3d{width:100%;height:390px;display:block}
+.viewer-label{
+ position:absolute;top:13px;left:14px;
+ pointer-events:none;font-size:10px;letter-spacing:2px;color:#cbd0d9;
+}
+.viewer-bottom{
+ position:absolute;bottom:12px;left:12px;right:12px;
+ display:flex;justify-content:space-between;pointer-events:none;
+ color:#aeb6c3;font-size:9px;letter-spacing:1px;
+}
+.tech-side{display:flex;flex-direction:column;gap:12px}
+.tech-card{
+ background:var(--panel);border:1px solid var(--line);
+ border-radius:11px;padding:15px;
+}
+.big-number{font-size:25px;font-weight:900;margin:7px 0}
+.component-list{
+ display:grid;grid-template-columns:1fr 1fr;gap:7px;
+}
+.component-list button{
+ font-size:10px;padding:11px 5px;
+}
+.component-list button.selected{
+ border-color:var(--red);background:#341419;
+}
+.component-info{
+ background:#0b0f14;border:1px solid var(--line);
+ border-radius:9px;padding:14px;margin-top:12px;
+}
+.component-info p{font-size:12px;color:var(--muted);line-height:1.7}
+.team-color{height:4px;width:40px;border-radius:5px;margin:9px 0}
+.compare-grid{
+ display:grid;grid-template-columns:1fr 1fr;gap:12px;
+}
+.car-preview{
+ border:1px solid var(--line);background:#0b0f14;
+ border-radius:10px;padding:12px;
+}
+.car-preview strong{font-size:13px}
+.upgrade{
+ border:1px solid var(--line);border-radius:10px;
+ padding:15px;margin-top:10px;background:#0b0f14;
+}
+.upgrade-top{display:flex;justify-content:space-between;gap:8px}
+.pill{
+ font-size:9px;padding:5px 8px;border-radius:20px;
+ background:#242b34;color:#cbd1da;white-space:nowrap;
+}
+.upgrade p{font-size:12px;color:var(--muted);line-height:1.7}
+.upgrade a{color:var(--gold);font-size:11px}
+.note{
+ border-left:3px solid var(--gold);
+ background:#1b1914;padding:12px;
+ color:#c7c0ae;font-size:11px;line-height:1.7;
+ margin-top:13px;
+}
+footer{
+ text-align:center;padding:28px 12px;color:var(--muted);
+ font-size:11px;line-height:2;
+}
+a{color:var(--gold)}
+@media(max-width:720px){
+ .tech-layout{grid-template-columns:1fr}
+ #car3d{height:330px}
+}
+@media(max-width:420px){
+ .controls{grid-template-columns:1fr}
+ .compare-grid{grid-template-columns:1fr}
+ .playcontrols{grid-template-columns:1fr 1fr}
+}
+</style>
+
+<!-- Three.js and camera controls -->
+<script type="importmap">
+{
+ "imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+ }
+}
+</script>
+</head>
+
+<body>
+
+<header>
+ <div class="brand">APEX<span>.</span></div>
+ <div class="tag">RACING & ENGINEERING LAB</div>
+</header>
+
+<main>
+
+<div class="eyebrow">INDEPENDENT MOTORSPORT PROJECT</div>
+<h1>THE RACING LAB.</h1>
+<p class="subtitle">
+ Explore Formula 1 through historical telemetry, 3D engineering
+ visualisations and season-by-season technical research.
+</p>
+
+<div class="nav">
+ <button class="active" data-tab="race">01 · RACE SIM</button>
+ <button data-tab="tech">02 · 3D TECH LAB</button>
+ <button data-tab="compare">03 · CAR EVOLUTION</button>
+ <button data-tab="upgrades">04 · UPGRADES</button>
+</div>
+
+<!-- RACE SIMULATOR -->
+
+<section class="section active" id="race">
+ <div class="eyebrow">01 / HISTORICAL TELEMETRY</div>
+ <h2>Grand Prix Replay</h2>
+ <p class="subtitle">Reconstruct historical racing movement from recorded car-location data.</p>
+
+ <div class="panel">
+  <div class="controls">
+   <div>
+    <label>SEASON</label>
+    <select id="season">
+     <option>2026</option>
+     <option>2025</option>
+     <option>2024</option>
+     <option>2023</option>
+    </select>
+   </div>
+   <div>
+    <label>GRAND PRIX</label>
+    <select id="raceSelect"><option>Loading races...</option></select>
+   </div>
+  </div>
+  <button class="primary" id="loadRace" style="margin-top:14px">LOAD RACE SIMULATION</button>
+  <div class="status" id="raceStatus">Connecting to OpenF1...</div>
+ </div>
+
+ <div class="trackbox">
+  <div class="trackhead">
+   <span>TELEMETRY REPLAY</span>
+   <span id="raceName">NO RACE SELECTED</span>
+  </div>
+  <canvas id="track" width="1100" height="760"></canvas>
+  <div class="trackfoot">
+   <span>HISTORICAL CAR POSITIONS</span>
+   <span id="lap">WAITING</span>
+  </div>
+ </div>
+
+ <div class="panel">
+  <div class="playcontrols">
+   <button id="play" class="primary" disabled>▶ PLAY</button>
+   <button id="restart" disabled>↺ REPLAY</button>
+   <select id="speed">
+    <option value="1">1× SPEED</option>
+    <option value="2">2× SPEED</option>
+    <option value="4">4× SPEED</option>
+    <option value="8">8× SPEED</option>
+   </select>
+  </div>
+  <div style="margin-top:15px">
+   <input id="timeline" type="range" min="0" max="1000" value="0" disabled>
+   <div class="timeinfo">
+    <span id="elapsed">00:00</span>
+    <span id="duration">00:00</span>
+   </div>
+  </div>
+  <div class="grid">
+   <div class="stat"><small>RACE PROGRESS</small><strong id="progress">0%</strong></div>
+   <div class="stat"><small>ACTIVE DRIVERS</small><strong id="tracked">0</strong></div>
+  </div>
+ </div>
+
+ <div class="panel">
+  <h3>RACE CLASSIFICATION</h3>
+  <div class="tablewrap">
+   <table>
+    <thead><tr><th>POS</th><th>DRIVER</th><th>TEAM</th><th>NO.</th></tr></thead>
+    <tbody id="leaderboard">
+     <tr><td colspan="4">Select a Grand Prix.</td></tr>
+    </tbody>
+   </table>
+  </div>
+  <div class="legend" id="legend"></div>
+ </div>
+</section>
+
+<!-- 3D TECH LAB -->
+
+<section class="section" id="tech">
+ <div class="tech-hero">
+  <div class="eyebrow">02 / ENGINEERING VISUALISATION</div>
+  <h2>UNDER THE BODYWORK.</h2>
+  <p class="subtitle">
+   Explore a procedural 3D Formula 1 car. Rotate the model,
+   inspect components and understand the engineering.
+  </p>
+ </div>
+
+ <div class="tech-layout">
+  <div class="viewer">
+   <div class="viewer-label">APEX / 3D CAR EXPLORER</div>
+   <div id="car3d"></div>
+   <div class="viewer-bottom">
+    <span>DRAG TO ROTATE</span>
+    <span>SCROLL TO ZOOM</span>
+   </div>
+  </div>
+
+  <div class="tech-side">
+   <div class="tech-card">
+    <label>TEAM MODEL COLOUR</label>
+    <select id="team">
+     <option value="Red Bull Racing">Red Bull Racing</option>
+     <option value="McLaren">McLaren</option>
+     <option value="Mercedes">Mercedes</option>
+     <option value="Ferrari">Ferrari</option>
+     <option value="Aston Martin">Aston Martin</option>
+     <option value="Alpine">Alpine</option>
+     <option value="Williams">Williams</option>
+     <option value="Racing Bulls">Racing Bulls</option>
+     <option value="Haas">Haas</option>
+     <option value="Sauber">Sauber</option>
+     <option value="Audi">Audi</option>
+     <option value="Cadillac">Cadillac</option>
+    </select>
+    <label style="margin-top:15px">CAR REGULATION ERA</label>
+    <select id="carYear">
+     <option value="2026">2026 · New regulations</option>
+     <option value="2025">2025 · Ground effect</option>
+     <option value="2024">2024 · Ground effect</option>
+     <option value="2023">2023 · Ground effect</option>
+    </select>
+    <div class="team-color" id="teamColor"></div>
+    <div class="big-number" id="modelName">2026 CAR</div>
+    <div class="subtitle" id="modelDescription">Engineering concept visualisation</div>
+   </div>
+
+   <div class="tech-card">
+    <h3>SELECT A COMPONENT</h3>
+    <div class="component-list">
+     <button data-component="frontWing" class="selected">Front Wing</button>
+     <button data-component="rearWing">Rear Wing</button>
+     <button data-component="sidepod">Sidepods</button>
+     <button data-component="floor">Floor</button>
+     <button data-component="diffuser">Diffuser</button>
+     <button data-component="suspension">Suspension</button>
+     <button data-component="brakes">Brakes</button>
+     <button data-component="power">Power Unit</button>
+    </div>
+    <div class="component-info">
+     <div class="eyebrow" id="componentCategory">AERODYNAMICS</div>
+     <h3 id="componentTitle">FRONT WING</h3>
+     <p id="componentText">The front wing manages airflow around the front tyres and helps generate front aerodynamic load.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+
+ <div class="panel">
+  <h3>HOW TO EXPLORE</h3>
+  <p class="subtitle">
+   Drag the model to rotate it. Pinch or scroll to zoom.
+   Select components to learn what they do. Change the year
+   to explore the different regulatory design concepts.
+  </p>
+  <div class="note">
+   Model accuracy: this is an original procedural educational
+   model, not a scanned or exact representation of any team's
+   actual race car. Component shapes are simplified.
+  </div>
+ </div>
+</section>
+
+<!-- COMPARISON -->
+
+<section class="section" id="compare">
+ <div class="eyebrow">03 / TECHNICAL EVOLUTION</div>
+ <h2>CAR EVOLUTION</h2>
+ <p class="subtitle">
+  Compare the same team's design philosophy across seasons.
+  The models represent broad regulatory eras, not exact
+  historical chassis specifications.
+ </p>
+
+ <div class="panel">
+  <label>SELECT TEAM</label>
+  <select id="compareTeam">
+   <option>Red Bull Racing</option>
+   <option>McLaren</option>
+   <option>Mercedes</option>
+   <option>Ferrari</option>
+   <option>Aston Martin</option>
+   <option>Alpine</option>
+   <option>Williams</option>
+   <option>Racing Bulls</option>
+   <option>Haas</option>
+   <option>Sauber</option>
+  </select>
+
+  <div class="compare-grid" style="margin-top:15px">
+   <div class="car-preview">
+    <label>EARLIER SEASON</label>
+    <select id="yearA">
+     <option>2023</option><option>2024</option>
+     <option>2025</option><option>2026</option>
+    </select>
+    <strong id="yearATitle">2023</strong>
+    <p class="subtitle" id="yearAText">Ground-effect generation.</p>
+   </div>
+   <div class="car-preview">
+    <label>LATER SEASON</label>
+    <select id="yearB">
+     <option>2026</option><option>2025</option>
+     <option>2024</option><option>2023</option>
+    </select>
+    <strong id="yearBTitle">2026</strong>
+    <p class="subtitle" id="yearBText">New regulatory generation.</p>
+   </div>
+  </div>
+  <button class="primary" id="compareButton" style="margin-top:15px">COMPARE GENERATIONS</button>
+  <div id="compareResult" class="component-info" style="margin-top:14px">
+   Select seasons and compare their engineering regulations.
+  </div>
+ </div>
+
+ <div class="panel">
+  <h3>REGULATION TIMELINE</h3>
+  <div class="upgrade">
+   <div class="upgrade-top"><strong>2023</strong><span class="pill">GROUND EFFECT</span></div>
+   <p>Teams developed the second year of the ground-effect regulations, with continued work on floor performance, ride control and aerodynamic efficiency.</p>
+  </div>
+  <div class="upgrade">
+   <div class="upgrade-top"><strong>2024</strong><span class="pill">REFINEMENT</span></div>
+   <p>Continued development of aerodynamic platforms, sidepod concepts, floor performance and cooling solutions.</p>
+  </div>
+  <div class="upgrade">
+   <div class="upgrade-top"><strong>2025</strong><span class="pill">FINAL ERA</span></div>
+   <p>The final season of this generation of ground-effect cars. Teams continued refining their existing platforms while preparing for the next regulations.</p>
+  </div>
+  <div class="upgrade">
+   <div class="upgrade-top"><strong>2026</strong><span class="pill">NEW GENERATION</span></div>
+   <p>Revised chassis and power-unit regulations, active aerodynamic systems and a new approach to energy deployment and efficiency.</p>
+  </div>
+ </div>
+</section>
+
+<!-- UPGRADE RESEARCH -->
+
+<section class="section" id="upgrades">
+ <div class="eyebrow">04 / DEVELOPMENT INTELLIGENCE</div>
+ <h2>UPGRADE DATABASE</h2>
+ <p class="subtitle">
+  Investigate how Formula 1 teams develop their cars.
+  Filter by season, team and engineering area.
+ </p>
+
+ <div class="panel">
+  <div class="controls">
+   <div>
+    <label>SEASON</label>
+    <select id="upgradeYear">
+     <option>2026</option><option>2025</option>
+     <option>2024</option><option>2023</option>
+    </select>
+   </div>
+   <div>
+    <label>TEAM</label>
+    <select id="upgradeTeam">
+     <option value="all">All teams</option>
+     <option>Red Bull Racing</option><option>McLaren</option>
+     <option>Mercedes</option><option>Ferrari</option>
+     <option>Aston Martin</option><option>Alpine</option>
+     <option>Williams</option><option>Racing Bulls</option>
+     <option>Haas</option><option>Sauber</option>
+     <option>Audi</option><option>Cadillac</option>
+    </select>
+   </div>
+   <div>
+    <label>ENGINEERING AREA</label>
+    <select id="upgradeArea">
+     <option value="all">All areas</option>
+     <option>Aerodynamics</option>
+     <option>Floor</option>
+     <option>Front Wing</option>
+     <option>Rear Wing</option>
+     <option>Cooling</option>
+     <option>Suspension</option>
+     <option>Power Unit</option>
+     <option>Tyres</option>
+    </select>
+   </div>
+  </div>
+
+  <div class="note">
+   Research integrity: the database below is a season-based
+   engineering research guide, not a verified list of every
+   team's individual upgrade packages. It does not invent
+   specific race dates or claim unverified components were fitted.
+  </div>
+  <div id="upgradeResults"></div>
+ </div>
+
+ <div class="panel">
+  <h3>PUBLIC TECHNICAL RESEARCH</h3>
+  <p class="subtitle">
+   Use these free sources to verify actual upgrade introductions,
+   technical explanations and regulatory changes.
+  </p>
+  <div class="upgrade">
+   <strong>FIA</strong>
+   <p>Regulations, official documents and technical directives.</p>
+   <a href="https://www.fia.com/regulation/category/110" target="_blank">FIA regulations ↗</a>
+  </div>
+  <div class="upgrade">
+   <strong>Formula 1</strong>
+   <p>Official technical explanations and team development coverage.</p>
+   <a href="https://www.formula1.com/" target="_blank">Formula 1 ↗</a>
+  </div>
+  <div class="upgrade">
+   <strong>RaceFans</strong>
+   <p>Technical analysis and reported development packages.</p>
+   <a href="https://www.racefans.net/" target="_blank">RaceFans ↗</a>
+  </div>
+  <div class="upgrade">
+   <strong>OpenF1</strong>
+   <p>Free historical timing and telemetry data.</p>
+   <a href="https://openf1.org/" target="_blank">OpenF1 ↗</a>
+  </div>
+ </div>
+</section>
+
+</main>
+
+<footer>
+ <div style="font-size:22px;font-weight:950;letter-spacing:4px;color:white">APEX.</div>
+ THINK · ANALYSE · RACE.
+ <br><br>
+ Developed by <strong style="color:white">Dhruv Bhattacharjee</strong>
+ <br>
+ Special thanks to ChatGPT by OpenAI for AI development assistance.
+ <br><br>
+ Independent educational motorsport project.
+ Not affiliated with Formula 1, FIA or any racing team.
+ <br>© 2026 APEX Racing Lab
+</footer>
+
+<script type="module">
+import * as THREE from "three";
+import {OrbitControls} from "three/addons/controls/OrbitControls.js";
+
+/* ---------------------------------
+   NAVIGATION
+---------------------------------- */
+
+document.querySelectorAll("[data-tab]").forEach(button=>{
+ button.addEventListener("click",()=>{
+  document.querySelectorAll("[data-tab]").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  button.classList.add("active");
+  document.getElementById(button.dataset.tab).classList.add("active");
+  if(button.dataset.tab==="tech")resize3D();
+ });
+});
+
+/* ---------------------------------
+   TEAM COLOURS
+---------------------------------- */
+
+const teamColors={
+ "Red Bull Racing":0x3671c6,
+ "McLaren":0xff8000,
+ "Mercedes":0x27f4d2,
+ "Ferrari":0xe8002d,
+ "Aston Martin":0x229971,
+ "Alpine":0xff87bc,
+ "Williams":0x64c4ff,
+ "Racing Bulls":0x6692ff,
+ "Haas":0xb6babd,
+ "Sauber":0x52e252,
+ "Audi":0xbb1822,
+ "Cadillac":0xd7d7d7
+};
+
+const teamColor=name=>teamColors[name]||0xe0e0e0;
+
+/* ---------------------------------
+   THREE.JS 3D ENGINEERING MODEL
+---------------------------------- */
+
+const holder=document.getElementById("car3d");
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x0c1017);
+
+const camera=new THREE.PerspectiveCamera(38,1,.1,100);
+camera.position.set(7,5,9);
+
+const renderer=new THREE.WebGLRenderer({
+ antialias:true,alpha:false
+});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.35;
+holder.appendChild(renderer.domElement);
+
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;
+controls.dampingFactor=.06;
+controls.minDistance=5;
+controls.maxDistance=18;
+controls.target.set(0,.4,0);
+
+scene.add(new THREE.HemisphereLight(0xffffff,0x303747,2));
+
+const keyLight=new THREE.DirectionalLight(0xffffff,3);
+keyLight.position.set(5,8,5);
+scene.add(keyLight);
+
+const rimLight=new THREE.DirectionalLight(0x6688ff,2);
+rimLight.position.set(-5,3,-5);
+scene.add(rimLight);
+
+const floor=new THREE.Mesh(
+ new THREE.PlaneGeometry(200,200),
+ new THREE.MeshStandardMaterial({color:0x10151c,roughness:.8})
+);
+floor.rotation.x=-Math.PI/2;
+floor.position.y=-.65;
+scene.add(floor);
+
+const grid=new THREE.GridHelper(30,40,0x303d4b,0x1c2632);
+grid.position.y=-.63;
+scene.add(grid);
+
+const carGroup=new THREE.Group();
+scene.add(carGroup);
+
+const componentObjects={};
+let selectedComponent="frontWing";
+
+const mat=(color,metal=.25,rough=.4)=>new THREE.MeshStandardMaterial({
+ color,metalness:metal,roughness:rough
+});
+
+const black=mat(0x11151c,.55);
+const carbon=mat(0x242b35,.4,.5);
+const rubber=mat(0x090a0d,.05,.9);
+const metal=mat(0x9aa5b1,.8,.25);
+
+function group(name){
+ const g=new THREE.Group();
+ g.name=name;
+ carGroup.add(g);
+ componentObjects[name]=g;
+ return g;
+}
+
+function box(parent,name,x,y,z,sx,sy,sz,material){
+ const mesh=new THREE.Mesh(
+  new THREE.BoxGeometry(sx,sy,sz),material
+ );
+ mesh.position.set(x,y,z);
+ mesh.name=name;
+ parent.add(mesh);
+ return mesh;
+}
+
+function cylinder(parent,x,y,z,radius,length,material,axis="z"){
+ const mesh=new THREE.Mesh(
+  new THREE.CylinderGeometry(radius,radius,length,24),
+  material
+ );
+ if(axis==="x")mesh.rotation.z=Math.PI/2;
+ if(axis==="z")mesh.rotation.x=Math.PI/2;
+ mesh.position.set(x,y,z);
+ parent.add(mesh);
+ return mesh;
+}
+
+function wing(parent,x,y,z,width,depth,color){
+ const wingMesh=box(parent,"wing",x,y,z,width,.075,depth,mat(color,.4,.35));
+ return wingMesh;
+}
+
+function buildCar(){
+ carGroup.clear();
+ Object.keys(componentObjects).forEach(k=>delete componentObjects[k]);
+
+ const color=teamColor(document.getElementById("team").value);
+ const bodyMat=mat(color,.45,.32);
+ const accent=mat(0xf4f4f4,.5,.3);
+
+ // Chassis / central body
+ const body=group("body");
+ const main=box(body,"chassis",0,.42,0,1.0,.30,3.0,bodyMat);
+ main.rotation.x=-.02;
+
+ // Cockpit
+ const cockpit= new THREE.Mesh(
+  new THREE.SphereGeometry(.43,32,20),
+  black
+ );
+ cockpit.scale.set(.68,.55,.85);
+ cockpit.position.set(0,.69,.0);
+ body.add(cockpit);
+
+ // Nose
+ const nose=box(body,"nose",0,.48,2.0,.38,.20,1.55,bodyMat);
+ nose.rotation.x=.035;
+
+ // Front wing
+ const fw=group("frontWing");
+ wing(fw,0,.20,2.88,2.35,.62,color);
+ box(fw,"front flap",0,.28,2.72,2.2,.07,.18,accent);
+ box(fw,"front support",0,.24,2.48,.10,.16,.35,black);
+ box(fw,"endplate L",-1.14,.30,2.9,.08,.3,.65,bodyMat);
+ box(fw,"endplate R",1.14,.30,2.9,.08,.3,.65,bodyMat);
+
+ // Rear wing
+ const rw=group("rearWing");
+ wing(rw,0,1.0,-2.75,1.55,.38,color);
+ box(rw,"rear flap",0,1.18,-2.75,1.5,.08,.3,accent);
+ box(rw,"rear support",0,.79,-2.62,.12,.5,.12,black);
+ box(rw,"rear endplate L",-.78,.96,-2.75,.08,.55,.48,bodyMat);
+ box(rw,"rear endplate R",.78,.96,-2.75,.08,.55,.48,bodyMat);
+
+ // Sidepods
+ const side=group("sidepod");
+ for(const s of [-1,1]){
+  const pod=new THREE.Mesh(
+   new THREE.BoxGeometry(.62,.48,1.65),
+   bodyMat
+  );
+  pod.position.set(s*.65,.48,-.35);
+  pod.rotation.y=s*.08;
+  side.add(pod);
+  const intake=new THREE.Mesh(
+   new THREE.BoxGeometry(.43,.12,.24),black
+  );
+  intake.position.set(s*.65,.75,.25);
+  side.add(intake);
+ }
+
+ // Floor
+ const floorGroup=group("floor");
+ box(floorGroup,"floor plate",0,.12,-.1,2.05,.10,3.5,carbon);
+ for(const s of [-1,1]){
+  box(floorGroup,"floor edge",s*.94,.12,-.1,.06,.15,3.5,black);
+ }
+
+ // Diffuser
+ const diff=group("diffuser");
+ for(let i=0;i<5;i++){
+  box(diff,"diffuser fin",-.5+i*.25,.19,-1.9,.035,.22,.7,metal);
+ }
+
+ // Suspension
+ const susp=group("suspension");
+ for(const x of [-1,1]){
+  for(const z of [-2,2]){
+   const wheelX=x*1.02;
+   const wheelZ=z;
+   const bar=box(susp,"suspension arm",x*.68,.42,z*.75,.06,.06,.9,metal);
+   bar.rotation.y=x*.28;
+  }
+ }
+
+ // Wheels and brakes
+ const brakes=group("brakes");
+ for(const x of [-1,1]){
+  for(const z of [-2,2]){
+   const tire=new THREE.Mesh(
+    new THREE.CylinderGeometry(.48,.48,.34,40),
+    rubber
+   );
+   tire.rotation.z=Math.PI/2;
+   tire.position.set(x*1.12,.39,z);
+   brakes.add(tire);
+
+   const rim=new THREE.Mesh(
+    new THREE.CylinderGeometry(.24,.24,.36,32),
+    metal
+   );
+   rim.rotation.z=Math.PI/2;
+   rim.position.copy(tire.position);
+   brakes.add(rim);
+  }
+ }
+
+ // Engine / power unit housing
+ const power=group("power");
+ box(power,"engine cover",0,.57,-1.25,.58,.40,1.05,bodyMat);
+ box(power,"engine detail",0,.38,-1.8,.38,.18,.45,metal);
+
+ // Halo
+ const halo=new THREE.Mesh(
+  new THREE.TorusGeometry(.43,.045,10,40,Math.PI),
+  metal
+ );
+ halo.position.set(0,.97,.25);
+ halo.rotation.z=Math.PI;
+ body.add(halo);
+
+ // Driver helmet
+ const helmet=new THREE.Mesh(
+  new THREE.SphereGeometry(.19,24,20),
+  accent
+ );
+ helmet.position.set(0,.91,.22);
+ body.add(helmet);
+
+ // Nose decorative stripe
+ box(body,"nose stripe",0,.59,1.95,.09,.015,1.5,accent);
+
+ carGroup.position.y=-.1;
+ updateComponentVisibility();
+}
+
+const componentInfo={
+ frontWing:{
+  category:"AERODYNAMICS",
+  title:"FRONT WING",
+  text:"The front wing controls the airflow reaching the front tyres and the rest of the car. Its geometry influences front aerodynamic load, balance and wake behaviour."
+ },
+ rearWing:{
+  category:"AERODYNAMICS",
+  title:"REAR WING",
+  text:"The rear wing generates aerodynamic load at the rear of the car. Its design involves a trade-off between cornering performance and drag on straights."
+ },
+ sidepod:{
+  category:"AERODYNAMICS / COOLING",
+  title:"SIDEPODS",
+  text:"Sidepods house cooling inlets and guide airflow around the bodywork towards the rear of the car. Their shape affects aerodynamic efficiency and cooling."
+ },
+ floor:{
+  category:"GROUND EFFECT",
+  title:"FLOOR",
+  text:"The underfloor is a major aerodynamic surface. Its geometry and interaction with the road help create low pressure beneath the car, producing downforce."
+ },
+ diffuser:{
+  category:"AERODYNAMICS",
+  title:"DIFFUSER",
+  text:"The diffuser expands the airflow leaving the underfloor. Its behaviour is important to underbody aerodynamic performance and rear downforce."
+ },
+ suspension:{
+  category:"MECHANICAL",
+  title:"SUSPENSION",
+  text:"Suspension controls wheel movement, tyre contact and chassis response. Its geometry also affects aerodynamic packaging and the car's behaviour over bumps and kerbs."
+ },
+ brakes:{
+  category:"BRAKING SYSTEM",
+  title:"BRAKES",
+  text:"Carbon brake discs and pads generate braking force. Brake ducts manage temperatures, while the surrounding design also influences airflow."
+ },
+ power:{
+  category:"POWER UNIT",
+  title:"POWER UNIT",
+  text:"The power unit combines an internal combustion engine and electrical energy systems. Cooling, energy recovery, deployment and efficiency all influence performance."
+ }
+};
+
+function updateComponentVisibility(){
+ Object.entries(componentObjects).forEach(([name,obj])=>{
+  obj.traverse(child=>{
+   if(child.material){
+    child.material.transparent=false;
+    child.material.opacity=1;
+   }
+  });
+  obj.visible=true;
+ });
+
+ Object.keys(componentObjects).forEach(name=>{
+  if(name!==selectedComponent && name!=="body"){
+   componentObjects[name].traverse(child=>{
+    if(child.material){
+     child.material.transparent=true;
+     child.material.opacity=.36;
+   }});
+  }
+ });
+
+ document.querySelectorAll("[data-component]").forEach(b=>{
+  b.classList.toggle("selected",b.dataset.component===selectedComponent);
+ });
+}
+
+function selectComponent(name){
+ selectedComponent=name;
+ const data=componentInfo[name];
+ document.getElementById("componentCategory").textContent=data.category;
+ document.getElementById("componentTitle").textContent=data.title;
+ document.getElementById("componentText").textContent=data.text;
+ updateComponentVisibility();
+}
+
+document.querySelectorAll("[data-component]").forEach(button=>{
+ button.addEventListener("click",()=>selectComponent(button.dataset.component));
+});
+
+function resize3D(){
+ const w=holder.clientWidth;
+ const h=holder.clientHeight;
+ if(!w||!h)return;
+ camera.aspect=w/h;
+ camera.updateProjectionMatrix();
+ renderer.setSize(w,h);
+}
+
+window.addEventListener("resize",resize3D);
+buildCar();
+resize3D();
+selectComponent("frontWing");
+
+document.getElementById("team").addEventListener("change",()=>{
+ buildCar();
+ selectComponent(selectedComponent);
+ document.getElementById("teamColor").style.background=
+  "#"+teamColor(document.getElementById("team").value).toString(16).padStart(6,"0");
+});
+
+document.getElementById("teamColor").style.background=
+ "#"+teamColor(document.getElementById("team").value).toString(16).padStart(6,"0");
+
+function animate3D(){
+ requestAnimationFrame(animate3D);
+ controls.update();
+ renderer.render(scene,camera);
+}
+animate3D();
+
+document.getElementById("carYear").addEventListener("change",e=>{
+ const year=Number(e.target.value);
+ document.getElementById("modelName").textContent=year+" CAR CONCEPT";
+ document.getElementById("modelDescription").textContent=
+  year===2026
+  ?"New-generation regulations: revised chassis, power unit and active aerodynamics."
+  :"Ground-effect regulation generation: underfloor aerodynamics and aerodynamic platform development.";
+});
+
+/* ---------------------------------
+   CAR COMPARISON
+---------------------------------- */
+
+function updateYearText(){
+ const a=Number(document.getElementById("yearA").value);
+ const b=Number(document.getElementById("yearB").value);
+
+ document.getElementById("yearATitle").textContent=a+" GENERATION";
+ document.getElementById("yearBTitle").textContent=b+" GENERATION";
+
+ const descriptions={
+  2023:"Ground-effect cars: teams refined the new generation.",
+  2024:"Ground-effect development and aerodynamic refinement.",
+  2025:"Final season of this ground-effect regulatory generation.",
+  2026:"New chassis and power-unit generation with active aerodynamics."
+ };
+
+ document.getElementById("yearAText").textContent=descriptions[a];
+ document.getElementById("yearBText").textContent=descriptions[b];
+}
+
+["yearA","yearB"].forEach(id=>{
+ document.getElementById(id).addEventListener("change",updateYearText);
+});
+updateYearText();
+
+document.getElementById("compareButton").addEventListener("click",()=>{
+ const a=Number(document.getElementById("yearA").value);
+ const b=Number(document.getElementById("yearB").value);
+ const team=document.getElementById("compareTeam").value;
+
+ let result;
+ if(a===b){
+  result="Both selections are the same season. Select two different seasons to compare.";
+ }else if((a<2026&&b<2026)||(a>2025&&b>2025)){
+  result="Both seasons belong to the same broad regulation generation. Compare team development, aerodynamic concepts and documented upgrade packages for specific differences.";
+ }else{
+  result="This comparison crosses the 2026 regulatory change. The new generation features revised chassis and power-unit rules and active aerodynamic systems. Earlier seasons use the previous ground-effect generation.";
+ }
+
+ document.getElementById("compareResult").innerHTML=
+  "<strong>"+team+" / ENGINEERING COMPARISON</strong><p class='subtitle'>"+
+  a+" → "+b+"</p><p class='subtitle'>"+result+
+  "</p><p class='subtitle'>Compare documented front-wing, floor, sidepod, cooling and suspension developments using the research sources below.</p>";
+});
+
+/* ---------------------------------
+   UPGRADE RESEARCH DATABASE
+---------------------------------- */
+
+const upgradeTopics={
+ 2023:[
+  ["Aerodynamics","Floor","Ground-effect refinement","Research how teams developed floor-edge geometry, underfloor airflow and ride-height sensitivity."],
+  ["Aerodynamics","Front Wing","Front aerodynamic balance","Investigate front-wing revisions and how teams managed front-axle airflow."],
+  ["Cooling","Cooling","Cooling optimisation","Investigate radiator layouts, cooling inlets and aerodynamic packaging."],
+  ["Mechanical","Suspension","Platform control","Research suspension geometry and its influence on ride height and aerodynamic consistency."]
+ ],
+ 2024:[
+  ["Aerodynamics","Floor","Underfloor development","Research how teams refined floor performance and managed airflow sensitivity."],
+  ["Aerodynamics","Sidepods","Sidepod development","Compare different inlet shapes, bodywork packaging and airflow paths."],
+  ["Aerodynamics","Rear Wing","Rear aerodynamic efficiency","Investigate downforce and drag trade-offs in rear-wing design."],
+  ["Mechanical","Suspension","Mechanical platform","Investigate how teams managed tyre contact, kerbs and chassis stability."]
+ ],
+ 2025:[
+  ["Aerodynamics","Floor","Final-generation floor refinement","Investigate late-cycle floor and underbody development."],
+  ["Aerodynamics","Front Wing","Front-end development","Study front-wing revisions and their relationship with overall car balance."],
+  ["Cooling","Cooling","Cooling and packaging","Research thermal management and bodywork packaging."],
+  ["Aerodynamics","Rear Wing","Drag and downforce","Investigate different rear-wing approaches for different circuits."]
+ ],
+ 2026:[
+  ["Regulations","Aerodynamics","Active aerodynamic generation","Study the new active aerodynamic rules and how front and rear systems change aerodynamic configuration."],
+  ["Regulations","Power Unit","Revised power-unit generation","Research the new electrical-power balance, energy recovery and deployment regulations."],
+  ["Regulations","Floor","Revised underbody concepts","Investigate how the new chassis and aerodynamic rules change underfloor design."],
+  ["Regulations","Suspension","New chassis packaging","Research how teams package suspension around the revised car regulations."]
+ ]
+};
+
+function renderUpgrades(){
+ const year=Number(document.getElementById("upgradeYear").value);
+ const team=document.getElementById("upgradeTeam").value;
+ const area=document.getElementById("upgradeArea").value;
+ const target=document.getElementById("upgradeResults");
+
+ const topics=upgradeTopics[year].filter(item=>
+  area==="all"||item[1]===area
+ );
+
+ target.innerHTML="";
+
+ if(!topics.length){
+  target.textContent="No matching engineering topics.";
+  return;
+ }
+
+ topics.forEach(item=>{
+  const card=document.createElement("div");
+  card.className="upgrade";
+
+  const teamText=team==="all"?"All teams":team;
+
+  card.innerHTML=`
+   <div class="upgrade-top">
+    <strong>${item[2]}</strong>
+    <span class="pill">${year}</span>
+   </div>
+   <p><strong>${teamText}</strong> · ${item[1]}</p>
+   <p>${item[3]}</p>
+   <a target="_blank" rel="noopener"
+    href="https://www.google.com/search?q=${encodeURIComponent("Formula 1 "+year+" "+teamText+" "+item[1]+" technical upgrade")}"
+   >Research documented ${year} developments ↗</a>
+  `;
+  target.appendChild(card);
+ });
+}
+
+["upgradeYear","upgradeTeam","upgradeArea"].forEach(id=>{
+ document.getElementById(id).addEventListener("change",renderUpgrades);
+});
+renderUpgrades();
+
+/* ---------------------------------
+   OPENF1 HISTORICAL RACE REPLAY
+---------------------------------- */
+
+const API="https://api.openf1.org/v1";
+const $=id=>document.getElementById(id);
+
+const trackCanvas=$("track");
+const ctx=trackCanvas.getContext("2d");
+
+let meetings=[],session=null,drivers=[],locations=[],positions=[];
+let traces={},raceStart=0,raceEnd=0,current=0;
+let playing=false,animation=null,lastFrame=0,bounds=null;
+
+const raceColors={
+ "Red Bull Racing":"#3671c6","McLaren":"#ff8000",
+ "Mercedes":"#27f4d2","Ferrari":"#e8002d",
+ "Aston Martin":"#229971","Alpine":"#ff87bc",
+ "Williams":"#64c4ff","Racing Bulls":"#6692ff",
+ "RB":"#6692ff","Haas F1 Team":"#b6babd",
+ "Haas":"#b6babd","Sauber":"#52e252"
+};
+
+function driverColor(d){
+ return raceColors[d.team_name]||
+  (d.team_colour?"#"+d.team_colour:"#dddddd");
+}
+
+async function api(endpoint){
+ const response=await fetch(API+endpoint);
+ if(!response.ok)throw new Error("Data service returned "+response.status);
+ return response.json();
+}
+
+function status(message,type=""){
+ $("raceStatus").textContent=message;
+ $("raceStatus").className="status "+type;
+}
+
+async function loadCalendar(){
+ try{
+  await changeSeason();
+ }catch(e){
+  status("Unable to load race calendar. Check your internet connection.","error");
+ }
+}
+
+async function changeSeason(){
+ const year=$("season").value;
+ $("raceSelect").innerHTML="<option>Loading...</option>";
+ status("Loading "+year+" calendar...");
+
+ meetings=await api("/meetings?year="+year);
+ meetings=meetings.filter(m=>!m.is_cancelled);
+
+ $("raceSelect").innerHTML="";
+ meetings.forEach(m=>{
+  const o=document.createElement("option");
+  o.value=m.meeting_key;
+  o.textContent=m.meeting_name;
+  $("raceSelect").appendChild(o);
+ });
+
+ if(meetings.length){
+  status(meetings.length+" race weekends available.","ok");
+ }else{
+  status("No race meetings returned for this season.","error");
+ }
+}
+
+$("season").addEventListener("change",()=>{
+ stopReplay();
+ changeSeason().catch(e=>status(e.message,"error"));
+});
+
+$("loadRace").addEventListener("click",loadRace);
+
+async function loadRace(){
+ stopReplay();
+ const key=$("raceSelect").value;
+ if(!key)return;
+
+ $("loadRace").disabled=true;
+ $("play").disabled=true;
+ $("restart").disabled=true;
+ $("timeline").disabled=true;
+
+ try{
+  status("Finding race session...");
+  const sessions=await api("/sessions?meeting_key="+key);
+  session=sessions.find(s=>s.session_name==="Race");
+  if(!session)throw new Error("Race session not available.");
+
+  $("raceName").textContent=session.circuit_short_name.toUpperCase();
+  status("Downloading historical telemetry...");
+
+  const [d,l,p]=await Promise.all([
+   api("/drivers?session_key="+session.session_key),
+   api("/location?session_key="+session.session_key),
+   api("/position?session_key="+session.session_key)
+  ]);
+
+  drivers=d;
+  locations=l;
+  positions=p;
+
+  if(!locations.length)throw new Error("No car location telemetry found.");
+
+  prepareReplay();
+  current=raceStart;
+  drawReplay();
+  updateReplay();
+
+  $("play").disabled=false;
+  $("restart").disabled=false;
+  $("timeline").disabled=false;
+
+  status("Historical telemetry loaded successfully.","ok");
+
+ }catch(e){
+  console.error(e);
+  status(e.message,"error");
+ }finally{
+  $("loadRace").disabled=false;
+ }
+}
+
+function prepareReplay(){
+ traces={};
+
+ locations.forEach(p=>{
+  if(!traces[p.driver_number])traces[p.driver_number]=[];
+  traces[p.driver_number].push({
+   t:new Date(p.date).getTime(),
+   x:Number(p.x),y:Number(p.y)
+  });
+ });
+
+ Object.values(traces).forEach(a=>a.sort((a,b)=>a.t-b.t));
+
+ const all=Object.values(traces).flat();
+ raceStart=Math.min(...all.map(p=>p.t));
+ raceEnd=Math.max(...all.map(p=>p.t));
+
+ bounds={
+  minX:Math.min(...all.map(p=>p.x)),
+  maxX:Math.max(...all.map(p=>p.x)),
+  minY:Math.min(...all.map(p=>p.y)),
+  maxY:Math.max(...all.map(p=>p.y))
+ };
+
+ positions.sort((a,b)=>new Date(a.date)-new Date(b.date));
+
+ const finalPositions={};
+ positions.forEach(p=>finalPositions[p.driver_number]=p.position);
+
+ const sorted=drivers.filter(d=>traces[d.driver_number])
+  .sort((a,b)=>(finalPositions[a.driver_number]||99)-
+               (finalPositions[b.driver_number]||99));
+
+ $("leaderboard").innerHTML=sorted.map((d,i)=>`
+  <tr>
+   <td><strong>${finalPositions[d.driver_number]||i+1}</strong></td>
+   <td><strong>${d.name_acronym||"--"}</strong></td>
+   <td><i class="teamdot" style="background:${driverColor(d)}"></i>${d.team_name||"--"}</td>
+   <td>${d.driver_number}</td>
+  </tr>
+ `).join("");
+
+ $("legend").innerHTML=sorted.map(d=>
+  `<span><i class="dot" style="background:${driverColor(d)}"></i>${d.name_acronym}</span>`
+ ).join("");
+}
+
+function interpolate(arr,t){
+ if(!arr||!arr.length)return null;
+
+ let lo=0,hi=arr.length-1;
+ while(lo<hi){
+  const mid=(lo+hi)>>1;
+  if(arr[mid].t<t)lo=mid+1;
+  else hi=mid;
+ }
+
+ const a=arr[Math.max(0,lo-1)];
+ const b=arr[lo];
+ if(!b)return a;
+ if(!a)return b;
+
+ const f=(t-a.t)/(b.t-a.t||1);
+ const k=Math.max(0,Math.min(1,f));
+
+ return {
+  x:a.x+(b.x-a.x)*k,
+  y:a.y+(b.y-a.y)*k
+ };
+}
+
+function transform(p){
+ const pad=85;
+ const w=trackCanvas.width-pad*2;
+ const h=trackCanvas.height-pad*2;
+ const dx=bounds.maxX-bounds.minX||1;
+ const dy=bounds.maxY-bounds.minY||1;
+ const scale=Math.min(w/dx,h/dy);
+ const ox=(trackCanvas.width-dx*scale)/2;
+ const oy=(trackCanvas.height-dy*scale)/2;
+
+ return {
+  x:ox+(p.x-bounds.minX)*scale,
+  y:trackCanvas.height-(oy+(p.y-bounds.minY)*scale)
+ };
+}
+
+function drawReplay(){
+ ctx.clearRect(0,0,trackCanvas.width,trackCanvas.height);
+ if(!bounds)return;
+
+ const reference=traces[Object.keys(traces)[0]];
+ if(!reference)return;
+
+ ctx.beginPath();
+ reference.forEach((p,i)=>{
+  const q=transform(p);
+  if(!i)ctx.moveTo(q.x,q.y);
+  else ctx.lineTo(q.x,q.y);
+ });
+ ctx.closePath();
+ ctx.lineWidth=14;
+ ctx.strokeStyle="#343b46";
+ ctx.stroke();
+
+ ctx.lineWidth=2;
+ ctx.strokeStyle="#8d97a5";
+ ctx.setLineDash([8,10]);
+ ctx.stroke();
+ ctx.setLineDash([]);
+
+ drivers.forEach(d=>{
+  const p=interpolate(traces[d.driver_number],current);
+  if(!p)return;
+  const q=transform(p);
+
+  ctx.beginPath();
+  ctx.arc(q.x,q.y,9,0,Math.PI*2);
+  ctx.fillStyle=driverColor(d);
+  ctx.fill();
+
+  ctx.fillStyle="#fff";
+  ctx.font="bold 10px Arial";
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  ctx.fillText(d.driver_number,q.x,q.y);
+ });
+
+ ctx.fillStyle="#fff";
+ ctx.font="bold 12px Arial";
+ ctx.textAlign="left";
+ ctx.fillText("APEX / HISTORICAL TELEMETRY",25,30);
+}
+
+function formatTime(s){
+ s=Math.max(0,Math.floor(s));
+ return String(Math.floor(s/60)).padStart(2,"0")+":"+
+  String(s%60).padStart(2,"0");
+}
+
+function updateReplay(){
+ const duration=Math.max(1,raceEnd-raceStart);
+ const elapsed=Math.max(0,current-raceStart);
+ const percent=Math.min(100,elapsed/duration*100);
+
+ $("timeline").value=Math.round(percent*10);
+ $("progress").textContent=Math.round(percent)+"%";
+ $("elapsed").textContent=formatTime(elapsed/1000);
+ $("duration").textContent=formatTime(duration/1000);
+ $("tracked").textContent=Object.values(traces).filter(a=>
+  current>=a[0].t&&current<=a[a.length-1].t
+ ).length;
+ $("lap").textContent="HISTORICAL REPLAY";
+}
+
+function stopReplay(){
+ playing=false;
+ cancelAnimationFrame(animation);
+ animation=null;
+ lastFrame=0;
+ $("play").textContent="▶ PLAY";
+}
+
+function tick(timestamp){
+ if(!playing)return;
+ if(!lastFrame)lastFrame=timestamp;
+
+ const delta=Math.min(100,timestamp-lastFrame);
+ lastFrame=timestamp;
+
+ current+=delta*Number($("speed").value)*8;
+
+ if(current>=raceEnd){
+  current=raceEnd;
+  stopReplay();
+ }
+
+ drawReplay();
+ updateReplay();
+
+ if(playing)animation=requestAnimationFrame(tick);
+}
+
+$("play").addEventListener("click",()=>{
+ if(!session)return;
+ if(playing){stopReplay();return;}
+ if(current>=raceEnd)current=raceStart;
+ playing=true;
+ $("play").textContent="Ⅱ PAUSE";
+ animation=requestAnimationFrame(tick);
+});
+
+$("restart").addEventListener("click",()=>{
+ stopReplay();
+ current=raceStart;
+ drawReplay();
+ updateReplay();
+});
+
+$("timeline").addEventListener("input",e=>{
+ stopReplay();
+ current=raceStart+(raceEnd-raceStart)*Number(e.target.value)/1000;
+ drawReplay();
+ updateReplay();
+});
+
+loadCalendar();
+</script>
+
+</body>
+</html>
